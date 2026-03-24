@@ -8,7 +8,7 @@ Most meetings end without clear records of what was decided, who owns what, or w
 
 ## Why I Built This
 
-After years in strategy and operations consulting, one pattern showed up constantly: meetings happened, things were discussed, and then nothing moved. Not because people didn't care — but because there was no system to capture decisions and assign ownership in real time.
+After years in strategy and operations consulting, one pattern showed up constantly: meetings happened, things were discussed, and then nothing moved. Not because people didn't care, but because there was no system to capture decisions and assign ownership in real time.
 
 This tool is the operational layer that should exist at the end of every meeting.
 
