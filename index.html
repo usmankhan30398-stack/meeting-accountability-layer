@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<!-- saved from url=(0069)file:///Users/usmankhan/Downloads/meeting-accountability-layer_1.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meeting Accountability Layer</title>
+<link href="./index_files/css2" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink: #0f0f0f; --ink-2: #3a3a3a; --ink-3: #6b6b6b; --ink-4: #a0a0a0;
+    --surface: #ffffff; --surface-2: #f5f5f3; --surface-3: #eeede9;
+    --border: #e2e1dc; --border-strong: #c8c7c0;
+    --red: #c0392b; --red-bg: #fdf1f0; --red-border: #f5c6c2;
+    --green: #1a7f4b; --green-bg: #edf7f2;
+    --amber: #92620a; --amber-bg: #fef8ec;
+    --radius: 8px; --radius-lg: 12px;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--surface-2); color: var(--ink); min-height: 100vh; font-size: 14px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .shell { max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
+  .header { margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .header-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .logo-mark { width: 28px; height: 28px; background: var(--ink); border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+  .tagline { font-size: 13px; color: var(--ink-3); line-height: 1.6; padding-left: 38px; }
+  .input-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 12px; }
+  .input-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .input-label { font-size: 12px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .upload-btn { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; font-family: inherit; font-size: 12px; font-weight: 500; color: var(--ink-2); background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+  .upload-btn:hover { background: var(--surface-3); border-color: var(--border-strong); }
+  #fileInput { display: none; }
+  .file-pill { display: none; align-items: center; gap: 6px; padding: 4px 10px; background: #e8f0fe; border-radius: 20px; font-size: 12px; color: #1a56c4; font-weight: 500; }
+  .file-pill.visible { display: inline-flex; }
+  .file-pill-x { background: none; border: none; cursor: pointer; color: #1a56c4; font-size: 13px; opacity: 0.7; padding: 0; }
+  .file-pill-x:hover { opacity: 1; }
+  textarea { width: 100%; min-height: 160px; padding: 12px; font-family: 'DM Mono', monospace; font-size: 12.5px; line-height: 1.7; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); resize: vertical; outline: none; transition: border-color 0.15s; }
+  textarea:focus { border-color: var(--border-strong); background: var(--surface); }
+  textarea::placeholder { color: var(--ink-4); }
+  .file-error { display: none; font-size: 12px; color: var(--red); margin-top: 8px; }
+  .file-error.visible { display: block; }
+  .action-row { display: flex; align-items: center; justify-content: flex-end; margin-top: 12px; gap: 12px; }
+  .char-count { font-size: 12px; color: var(--ink-4); }
+  .analyze-btn { display: inline-flex; align-items: center; gap: 8px; padding: 9px 20px; font-family: inherit; font-size: 13px; font-weight: 600; color: #fff; background: #0f0f0f; border: none; border-radius: var(--radius); cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
+  .analyze-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .analyze-btn:not(:disabled):hover { opacity: 0.85; }
+  .analyze-btn:not(:disabled):active { transform: scale(0.98); }
+  .spinner { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+  .analyzing .spinner { display: block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error-box { display: none; background: var(--red-bg); border: 1px solid var(--red-border); border-radius: var(--radius); padding: 12px 16px; font-size: 13px; color: var(--red); margin-bottom: 16px; }
+  .error-box.visible { display: block; }
+  .output { display: none; margin-top: 8px; }
+  .output.visible { display: block; }
+  .tab-bar { display: flex; gap: 2px; background: var(--surface-3); border: 1px solid var(--border); border-radius: var(--radius); padding: 3px; margin-bottom: 16px; }
+  .tab { flex: 1; padding: 7px 8px; font-family: inherit; font-size: 12px; font-weight: 500; color: var(--ink-3); background: none; border: none; border-radius: 6px; cursor: pointer; text-align: center; transition: background 0.15s, color 0.15s; white-space: nowrap; }
+  .tab:hover:not(.active) { color: var(--ink-2); background: rgba(0,0,0,0.04); }
+  .tab.active { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .tab-content { animation: fadeUp 0.2s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .section-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-4); margin-bottom: 10px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 8px; transition: border-color 0.15s; }
+  .card:hover { border-color: var(--border-strong); }
+  .card-tag { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-4); margin-bottom: 6px; }
+  .card-body { font-size: 14px; font-weight: 500; color: var(--ink); line-height: 1.5; margin-bottom: 8px; }
+  .card-meta { display: flex; gap: 16px; flex-wrap: wrap; }
+  .meta-item { font-size: 12px; color: var(--ink-3); }
+  .meta-item strong { color: var(--ink-2); font-weight: 600; }
+  .card-context { font-size: 12.5px; color: var(--ink-3); line-height: 1.6; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .badge { flex-shrink: 0; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; padding: 3px 8px; border-radius: 4px; }
+  .badge-high { background: var(--red-bg); color: var(--red); }
+  .badge-medium { background: var(--amber-bg); color: var(--amber); }
+  .badge-low { background: var(--green-bg); color: var(--green); }
+  .score-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; }
+  .score-display { display: flex; align-items: baseline; gap: 3px; margin-bottom: 16px; }
+  .score-num { font-size: 56px; font-weight: 700; letter-spacing: -2px; line-height: 1; }
+  .score-denom { font-size: 22px; color: var(--ink-4); font-weight: 500; }
+  .score-bar-track { height: 6px; background: var(--surface-3); border-radius: 99px; overflow: hidden; margin-bottom: 4px; }
+  .score-bar-fill { height: 100%; border-radius: 99px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+  .score-scale { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-4); margin-bottom: 16px; }
+  .score-verdict { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+  .score-reasoning { font-size: 13px; color: var(--ink-3); line-height: 1.6; padding-top: 12px; border-top: 1px solid var(--border); margin-top: 12px; }
+  .email-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .email-toolbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .email-toolbar-label { font-size: 12px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+  .copy-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; font-family: inherit; font-size: 12px; font-weight: 600; color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: background 0.15s; }
+  .copy-btn:hover { background: var(--surface-3); }
+  .copy-btn.copied { color: var(--green); border-color: #a7e6c4; background: var(--green-bg); }
+  .email-body { padding: 20px; font-family: 'DM Mono', monospace; font-size: 12.5px; line-height: 1.8; color: var(--ink-2); white-space: pre-wrap; word-break: break-word; }
+  .empty { text-align: center; padding: 48px 24px; color: var(--ink-4); font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="header">
+    <div class="header-top">
+      <div class="logo-mark">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <rect x="1" y="1" width="5" height="5" rx="1" fill="white"></rect>
+          <rect x="8" y="1" width="5" height="5" rx="1" fill="white" opacity="0.5"></rect>
+          <rect x="1" y="8" width="5" height="5" rx="1" fill="white" opacity="0.5"></rect>
+          <rect x="8" y="8" width="5" height="5" rx="1" fill="white" opacity="0.25"></rect>
+        </svg>
+      </div>
+      <h1>Meeting Accountability Layer</h1>
+    </div>
+    <p class="tagline">Paste notes or upload a transcript. Get decisions, action items, a necessity score, and a follow-up email — instantly.</p>
+  </div>
+
+  <div class="input-card">
+    <div class="input-row">
+      <span class="input-label">Meeting Notes</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="file-pill" id="filePill"><span id="fileName"></span><button class="file-pill-x" id="clearFile">✕</button></span>
+        <label class="upload-btn">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1v7M3 4l3-3 3 3M1 10h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+          Upload .txt
+          <input type="file" id="fileInput" accept=".txt,text/plain">
+        </label>
+      </div>
+    </div>
+    <textarea id="notes" placeholder="Paste your meeting notes or transcript here…"></textarea>
+    <div class="file-error" id="fileError"></div>
+    <div class="action-row">
+      <span class="char-count" id="charCount">0 characters</span>
+      <button class="analyze-btn" id="analyzeBtn" disabled="">
+        <div class="spinner"></div>
+        <span id="btnLabel">Analyze Meeting</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="error-box" id="apiError"></div>
+
+  <div class="output" id="output">
+    <div class="tab-bar">
+      <button class="tab active" data-tab="decisions">Decisions</button>
+      <button class="tab" data-tab="actions">Action Items</button>
+      <button class="tab" data-tab="score">Necessity Score</button>
+      <button class="tab" data-tab="email">Follow-Up Email</button>
+    </div>
+    <div id="tabContent" class="tab-content"></div>
+  </div>
+</div>
+
+<script>
+const SYSTEM_PROMPT = `You are a meeting analysis engine. Return a single valid JSON object only — no explanation, no markdown, no backticks.
+
+{"decisions":[{"what":"string","who":"string","context":"string"}],"actions":[{"task":"string","owner":"string","deadline":"string","priority":"High|Medium|Low"}],"score":{"rating":1,"verdict":"string","reasoning":"string"},"email":"plain text email with Subject: line, greeting, decisions, action items, professional close"}
+
+Rules: empty arrays if nothing found. Infer priority from urgency; default Medium. Email must sound human. No hallucinated names. Return ONLY valid JSON.`;
+
+let parsed = null, activeTab = 'decisions';
+const notesEl = document.getElementById('notes');
+const analyzeBtn = document.getElementById('analyzeBtn');
+const btnLabel = document.getElementById('btnLabel');
+const fileInput = document.getElementById('fileInput');
+const filePill = document.getElementById('filePill');
+const fileNameEl = document.getElementById('fileName');
+const charCountEl = document.getElementById('charCount');
+const apiErrorEl = document.getElementById('apiError');
+const outputEl = document.getElementById('output');
+
+notesEl.addEventListener('input', () => {
+  const n = notesEl.value.length;
+  charCountEl.textContent = n.toLocaleString() + ' character' + (n !== 1 ? 's' : '');
+  analyzeBtn.disabled = !notesEl.value.trim();
+});
+
+fileInput.addEventListener('change', e => {
+  const file = e.target.files[0];
+  const errEl = document.getElementById('fileError');
+  errEl.classList.remove('visible'); filePill.classList.remove('visible');
+  if (!file) return;
+  if (file.type && file.type !== 'text/plain') { errEl.textContent = `"${file.name}" isn't a .txt file. Paste content from .docx or .pdf directly.`; errEl.classList.add('visible'); fileInput.value=''; return; }
+  if (file.size > 2097152) { errEl.textContent = 'File exceeds 2MB. Try pasting directly.'; errEl.classList.add('visible'); fileInput.value=''; return; }
+  const reader = new FileReader();
+  reader.onload = ev => { notesEl.value = ev.target.result; fileNameEl.textContent = file.name; filePill.classList.add('visible'); charCountEl.textContent = notesEl.value.length.toLocaleString() + ' characters'; analyzeBtn.disabled = false; };
+  reader.readAsText(file);
+});
+
+document.getElementById('clearFile').addEventListener('click', () => { notesEl.value=''; filePill.classList.remove('visible'); fileInput.value=''; charCountEl.textContent='0 characters'; analyzeBtn.disabled=true; });
+
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => { document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active')); t.classList.add('active'); activeTab=t.dataset.tab; renderTab(); });
+});
+
+analyzeBtn.addEventListener('click', async () => {
+  const notes = notesEl.value.trim();
+  if (!notes) return;
+  analyzeBtn.disabled=true; analyzeBtn.classList.add('analyzing'); btnLabel.textContent='Analyzing…';
+  apiErrorEl.classList.remove('visible'); outputEl.classList.remove('visible');
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system:SYSTEM_PROMPT, messages:[{role:'user',content:`Meeting notes:\n\n${notes}`}] })
+    });
+    if (!res.ok) { const e=await res.json().catch(()=>({})); throw new Error(e?.error?.message||`API error ${res.status}`); }
+    const data = await res.json();
+    const raw = data.content.map(b=>b.type==='text'?b.text:'').join('').trim();
+    parsed = JSON.parse(raw.replace(/^```(?:json)?\s*/i,'').replace(/\s*```$/i,'').trim());
+    activeTab='decisions';
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab==='decisions'));
+    outputEl.classList.add('visible'); renderTab();
+  } catch(err) { apiErrorEl.textContent=err.message||'Something went wrong.'; apiErrorEl.classList.add('visible'); }
+  finally { analyzeBtn.disabled=false; analyzeBtn.classList.remove('analyzing'); btnLabel.textContent='Analyze Meeting'; }
+});
+
+function renderTab() {
+  const el = document.getElementById('tabContent');
+  el.className='tab-content'; void el.offsetWidth;
+  if (!parsed) return;
+  if (activeTab==='decisions') {
+    const d=parsed.decisions;
+    if (!d?.length){el.innerHTML='<div class="empty">No decisions logged.</div>';return;}
+    el.innerHTML=`<div class="section-label">${d.length} Decision${d.length!==1?'s':''} Logged</div>`+d.map(i=>`<div class="card"><div class="card-tag">Decision</div><div class="card-body">${esc(i.what)}</div><div class="card-meta"><span class="meta-item"><strong>Owner</strong> ${esc(i.who)}</span></div>${i.context?`<div class="card-context">${esc(i.context)}</div>`:''}</div>`).join('');
+  }
+  if (activeTab==='actions') {
+    const a=parsed.actions;
+    if (!a?.length){el.innerHTML='<div class="empty">No action items identified.</div>';return;}
+    el.innerHTML=`<div class="section-label">${a.length} Action Item${a.length!==1?'s':''}</div>`+a.map(i=>`<div class="card"><div class="card-top"><div class="card-tag">Task</div><span class="badge badge-${(i.priority||'medium').toLowerCase()}">${esc(i.priority)}</span></div><div class="card-body">${esc(i.task)}</div><div class="card-meta"><span class="meta-item"><strong>Owner</strong> ${esc(i.owner)}</span><span class="meta-item"><strong>Deadline</strong> ${esc(i.deadline)}</span></div></div>`).join('');
+  }
+  if (activeTab==='score') {
+    const s=parsed.score;
+    if (!s){el.innerHTML='<div class="empty">Could not compute a score.</div>';return;}
+    const r=Math.min(10,Math.max(1,s.rating)),pct=(r/10)*100,color=r<=3?'#1a7f4b':r<=6?'#d97706':'#c0392b';
+    el.innerHTML=`<div class="score-card"><div class="score-display"><span class="score-num" style="color:${color}">${r}</span><span class="score-denom">/10</span></div><div class="score-bar-track"><div class="score-bar-fill" style="width:${pct}%;background:${color}"></div></div><div class="score-scale"><span>Could have been an email</span><span>Meeting was essential</span></div><div class="score-verdict">${esc(s.verdict)}</div><div class="score-reasoning">${esc(s.reasoning)}</div></div>`;
+  }
+  if (activeTab==='email') {
+    const email=parsed.email;
+    if (!email){el.innerHTML='<div class="empty">No email draft generated.</div>';return;}
+    el.innerHTML=`<div class="email-card"><div class="email-toolbar"><span class="email-toolbar-label">Draft Ready</span><button class="copy-btn" id="copyBtn">Copy</button></div><div class="email-body">${esc(email)}</div></div>`;
+    document.getElementById('copyBtn').addEventListener('click',function(){
+      navigator.clipboard.writeText(email).then(()=>{this.classList.add('copied');this.textContent='Copied!';setTimeout(()=>{this.classList.remove('copied');this.textContent='Copy';},2000);});
+    });
+  }
+}
+
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+</script>
+
+
+</body></html>
