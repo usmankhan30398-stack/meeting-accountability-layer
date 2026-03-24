@@ -1,1 +1,546 @@
+<!DOCTYPE html>
+<!-- saved from url=(0046)file:///Users/usmankhan/Downloads/index_2.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meeting Accountability Layer</title>
+<link href="./index_files/css2" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0f0f0f;
+    --ink-2: #3a3a3a;
+    --ink-3: #6b6b6b;
+    --ink-4: #9a9a9a;
+    --border: #e2e2e2;
+    --border-strong: #c8c8c8;
+    --surface: #ffffff;
+    --surface-2: #f7f7f5;
+    --surface-3: #f0f0ee;
+    --accent: #0f0f0f;
+    --accent-fg: #ffffff;
+    --red: #c0392b;
+    --red-bg: #fdf2f1;
+    --red-border: #f5c6c2;
+    --amber: #92400e;
+    --amber-bg: #fffbeb;
+    --green: #166534;
+    --green-bg: #f0fdf4;
+    --radius: 8px;
+    --radius-sm: 5px;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--surface-2);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .shell {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 24px 64px;
+  }
+
+  /* ── Header ── */
+  .header { padding: 32px 0 24px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+  .header-inner { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .wordmark { display: flex; align-items: center; gap: 10px; }
+  .wordmark-icon {
+    width: 28px; height: 28px; background: var(--ink);
+    border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .wordmark-icon svg { display: block; }
+  .wordmark-text { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; color: var(--ink); }
+  .header-meta { font-size: 12px; color: var(--ink-4); font-weight: 500; letter-spacing: 0.02em; padding-top: 6px; }
+
+  /* ── API Key Banner ── */
+  .api-banner {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #92400e;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .api-banner strong { font-weight: 600; }
+  .api-key-row { display: flex; gap: 8px; margin-top: 10px; }
+  .api-key-input {
+    flex: 1; padding: 7px 10px; font-size: 12.5px;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid #fde68a; border-radius: var(--radius-sm);
+    background: #fff; color: var(--ink); outline: none;
+  }
+  .api-key-input:focus { border-color: #d97706; }
+  .api-key-save {
+    padding: 7px 14px; font-size: 12.5px; font-weight: 600;
+    font-family: inherit; background: var(--ink); color: #fff;
+    border: none; border-radius: var(--radius-sm); cursor: pointer;
+  }
+  .api-key-save:hover { opacity: 0.85; }
+  .api-key-set { color: #166534; font-size: 12px; margin-top: 6px; display: none; }
+
+  /* ── Input card ── */
+  .input-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+  .input-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); margin-bottom: 10px; }
+
+  textarea {
+    width: 100%; padding: 12px 14px; font-size: 13.5px; font-family: inherit;
+    border: 1px solid var(--border); border-radius: var(--radius-sm); resize: vertical;
+    line-height: 1.65; color: var(--ink); background: var(--surface-2); display: block;
+    transition: border-color 0.15s; outline: none; min-height: 140px;
+  }
+  textarea:focus { border-color: var(--ink); background: var(--surface); }
+  textarea::placeholder { color: var(--ink-4); }
+
+  .input-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; gap: 12px; flex-wrap: wrap; }
+  .upload-zone { display: flex; align-items: center; gap: 8px; }
+
+  .upload-btn {
+    display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px;
+    border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+    font-size: 12.5px; font-weight: 500; cursor: pointer; background: var(--surface);
+    color: var(--ink-2); font-family: inherit; transition: background 0.12s, border-color 0.12s;
+  }
+  .upload-btn:hover { background: var(--surface-3); border-color: var(--ink-3); }
+  #fileInput { display: none; }
+
+  .file-tag {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 12px;
+    color: var(--ink-2); background: var(--surface-3); border: 1px solid var(--border);
+    padding: 3px 10px 3px 8px; border-radius: 100px; font-family: 'JetBrains Mono', monospace;
+  }
+  .file-tag-clear { background: none; border: none; cursor: pointer; color: var(--ink-4); font-size: 13px; padding: 0; display: flex; align-items: center; line-height: 1; transition: color 0.1s; }
+  .file-tag-clear:hover { color: var(--ink); }
+
+  .analyze-btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 8px 20px;
+    font-size: 13.5px; font-weight: 600; background: var(--accent); color: var(--accent-fg);
+    border: none; border-radius: var(--radius-sm); font-family: inherit; cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s; white-space: nowrap; letter-spacing: -0.1px;
+  }
+  .analyze-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .analyze-btn:not(:disabled):hover { opacity: 0.85; }
+  .analyze-btn:not(:disabled):active { transform: scale(0.98); }
+
+  .spinner { width: 13px; height: 13px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+  .analyzing .spinner { display: block; }
+  .analyzing .btn-label { opacity: 0.7; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-inline { font-size: 12.5px; color: var(--red); margin-top: 8px; display: none; }
+  .error-box { background: var(--red-bg); border: 1px solid var(--red-border); border-radius: var(--radius); padding: 12px 16px; font-size: 13px; color: var(--red); margin-bottom: 20px; display: none; }
+
+  /* ── Output ── */
+  .output-section { display: none; }
+  .tab-bar { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+  .tab { padding: 10px 16px; font-size: 13px; font-family: inherit; font-weight: 500; background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; color: var(--ink-3); transition: color 0.12s; white-space: nowrap; }
+  .tab:hover { color: var(--ink-2); }
+  .tab.active { color: var(--ink); border-bottom-color: var(--ink); font-weight: 600; }
+  .tab-content { min-height: 200px; }
+
+  .section-title { font-size: 13px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 12px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 8px; transition: border-color 0.12s; }
+  .card:hover { border-color: var(--border-strong); }
+  .card-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 6px; }
+  .card-tag { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-4); }
+  .card-body { font-size: 14px; font-weight: 500; color: var(--ink); line-height: 1.5; margin-bottom: 8px; }
+  .card-meta { display: flex; gap: 20px; flex-wrap: wrap; }
+  .meta-item { font-size: 12.5px; color: var(--ink-3); }
+  .meta-item strong { color: var(--ink-2); font-weight: 600; }
+  .card-subtext { font-size: 12.5px; color: var(--ink-3); margin-top: 8px; line-height: 1.55; border-top: 1px solid var(--border); padding-top: 8px; }
+
+  .badge { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.06em; flex-shrink: 0; }
+  .badge-high { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+  .badge-medium { background: var(--amber-bg); color: var(--amber); border: 1px solid #fde68a; }
+  .badge-low { background: var(--green-bg); color: var(--green); border: 1px solid #bbf7d0; }
+
+  .score-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+  .score-hero { display: flex; align-items: baseline; gap: 2px; margin-bottom: 16px; }
+  .score-num { font-size: 56px; font-weight: 700; line-height: 1; letter-spacing: -2px; font-family: 'JetBrains Mono', monospace; }
+  .score-denom { font-size: 22px; color: var(--ink-4); font-family: 'JetBrains Mono', monospace; margin-left: 2px; }
+  .score-track { width: 100%; height: 6px; background: var(--surface-3); border-radius: 100px; margin-bottom: 20px; overflow: hidden; }
+  .score-fill { height: 100%; border-radius: 100px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+  .score-verdict { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+  .score-reasoning { font-size: 13.5px; color: var(--ink-2); line-height: 1.6; margin-bottom: 16px; }
+  .score-scale { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink-4); padding-top: 12px; border-top: 1px solid var(--border); }
+
+  .email-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .copy-btn { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; font-size: 12.5px; font-family: inherit; font-weight: 500; background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); cursor: pointer; color: var(--ink-2); transition: background 0.12s; }
+  .copy-btn:hover { background: var(--surface-3); }
+  .email-body { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; }
+  .email-pre { font-size: 13.5px; line-height: 1.75; white-space: pre-wrap; font-family: inherit; color: var(--ink); }
+  .empty-state { font-size: 13.5px; color: var(--ink-4); padding: 32px 0; text-align: center; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-inner">
+      <div class="wordmark">
+        <div class="wordmark-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="2" width="5" height="5" rx="1" fill="white" opacity="0.9"></rect>
+            <rect x="9" y="2" width="5" height="5" rx="1" fill="white" opacity="0.5"></rect>
+            <rect x="2" y="9" width="5" height="5" rx="1" fill="white" opacity="0.5"></rect>
+            <rect x="9" y="9" width="5" height="5" rx="1" fill="white" opacity="0.7"></rect>
+          </svg>
+        </div>
+        <span class="wordmark-text">Meeting Accountability Layer</span>
+      </div>
+      <span class="header-meta">by Usman Khan</span>
+    </div>
+  </div>
+
+  <!-- API Key Banner -->
+  <div class="api-banner" id="apiBanner">
+    <div style="flex:1">
+      <strong>API key required to run locally.</strong> Enter your Anthropic API key below. It stays in your browser and is never sent anywhere except the Anthropic API.
+      <div class="api-key-row">
+        <input type="password" class="api-key-input" id="apiKeyInput" placeholder="sk-ant-...">
+        <button class="api-key-save" id="apiKeySave">Save</button>
+      </div>
+      <div class="api-key-set" id="apiKeySet">✓ API key saved — you're good to go.</div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="input-card">
+    <div class="input-label">Meeting notes or transcript</div>
+    <textarea id="notes" placeholder="Paste your notes here — raw, messy, whatever format. The tool will sort it out." rows="8"></textarea>
+    <p class="error-inline" id="fileError"></p>
+    <div class="input-footer">
+      <div class="upload-zone">
+        <label class="upload-btn">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
+            <path d="M6.5 1v8M3.5 4l3-3 3 3M1.5 10.5h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+          Upload .txt
+          <input type="file" id="fileInput" accept=".txt,text/plain">
+        </label>
+        <span class="file-tag hidden" id="fileTag">
+          <span id="fileName"></span>
+          <button class="file-tag-clear" id="clearBtn">×</button>
+        </span>
+      </div>
+      <button class="analyze-btn" id="analyzeBtn" disabled="">
+        <div class="spinner"></div>
+        <span class="btn-label">Analyze Meeting</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="error-box" id="apiError"></div>
+
+  <!-- Output -->
+  <div class="output-section" id="outputSection">
+    <div class="tab-bar">
+      <button class="tab active" data-tab="decisions">Decisions</button>
+      <button class="tab" data-tab="actions">Action Items</button>
+      <button class="tab" data-tab="score">Necessity Score</button>
+      <button class="tab" data-tab="email">Follow-Up Email</button>
+    </div>
+    <div class="tab-content" id="tabContent"></div>
+  </div>
+
+</div>
+
+<script>
+const SYSTEM_PROMPT = `You are a meeting analysis engine. Your job is to extract structured information from meeting notes or transcripts and return it as a single, valid JSON object — nothing else. No explanation, no markdown, no backticks. Just raw JSON.
+
+Analyze the provided meeting content and return exactly this structure:
+
+{
+  "decisions": [
+    {
+      "what": "Clear statement of what was decided",
+      "who": "Person or group who made/owns the decision",
+      "context": "Brief context on why this decision was made"
+    }
+  ],
+  "actions": [
+    {
+      "task": "Specific, actionable task description",
+      "owner": "Person responsible",
+      "deadline": "Deadline if mentioned, otherwise 'Not specified'",
+      "priority": "High or Medium or Low"
+    }
+  ],
+  "score": {
+    "rating": 7,
+    "verdict": "One-line verdict",
+    "reasoning": "2-3 sentences explaining the score. Be direct and honest."
+  },
+  "email": "Ready-to-send follow-up email. Include subject line prefixed with Subject:, greeting, decisions summary, action items with owners and deadlines, and a professional close."
+}
+
+Rules:
+- If no decisions were made, return an empty array for decisions.
+- If no action items exist, return an empty array for actions.
+- Infer priority from urgency language. Default to Medium if unclear.
+- The email must be human-sounding, not corporate boilerplate.
+- Do not hallucinate names or tasks not in the notes.
+- Return ONLY valid JSON.`;
+
+let parsedOutput = null;
+let activeTab = 'decisions';
+let apiKey = localStorage.getItem('mal_api_key') || '';
+
+// ── API Key setup ──
+const apiBanner = document.getElementById('apiBanner');
+const apiKeyInput = document.getElementById('apiKeyInput');
+const apiKeySave = document.getElementById('apiKeySave');
+const apiKeySet = document.getElementById('apiKeySet');
+
+if (apiKey) {
+  apiKeyInput.value = apiKey;
+  apiKeySet.style.display = 'block';
+}
+
+apiKeySave.addEventListener('click', () => {
+  const val = apiKeyInput.value.trim();
+  if (!val) return;
+  apiKey = val;
+  localStorage.setItem('mal_api_key', val);
+  apiKeySet.style.display = 'block';
+});
+
+// ── File handling ──
+const fileInput = document.getElementById('fileInput');
+const fileTag = document.getElementById('fileTag');
+const fileNameEl = document.getElementById('fileName');
+const clearBtn = document.getElementById('clearBtn');
+const fileErrorEl = document.getElementById('fileError');
+const notesEl = document.getElementById('notes');
+const analyzeBtn = document.getElementById('analyzeBtn');
+
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  fileErrorEl.style.display = 'none';
+  fileTag.classList.add('hidden');
+  if (!file) return;
+  if (file.type && file.type !== 'text/plain') {
+    fileErrorEl.textContent = `"${file.name}" isn't a .txt file. Paste content from .docx or .pdf directly.`;
+    fileErrorEl.style.display = 'block';
+    fileInput.value = '';
+    return;
+  }
+  if (file.size > 2 * 1024 * 1024) {
+    fileErrorEl.textContent = 'File exceeds 2MB. Try pasting the text directly.';
+    fileErrorEl.style.display = 'block';
+    fileInput.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    notesEl.value = ev.target.result;
+    fileNameEl.textContent = file.name;
+    fileTag.classList.remove('hidden');
+    updateBtn();
+  };
+  reader.onerror = () => {
+    fileErrorEl.textContent = 'Could not read the file. Try pasting directly.';
+    fileErrorEl.style.display = 'block';
+  };
+  reader.readAsText(file);
+});
+
+clearBtn.addEventListener('click', () => {
+  notesEl.value = '';
+  fileTag.classList.add('hidden');
+  fileInput.value = '';
+  updateBtn();
+});
+
+notesEl.addEventListener('input', () => {
+  fileTag.classList.add('hidden');
+  updateBtn();
+});
+
+function updateBtn() {
+  analyzeBtn.disabled = !notesEl.value.trim();
+}
+
+// ── Tabs ──
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activeTab = tab.dataset.tab;
+    renderTab();
+  });
+});
+
+// ── Analyze ──
+analyzeBtn.addEventListener('click', async () => {
+  const notes = notesEl.value.trim();
+  if (!notes) return;
+
+  if (!apiKey) {
+    const apiErrorEl = document.getElementById('apiError');
+    apiErrorEl.textContent = 'Please enter your Anthropic API key in the banner above before analyzing.';
+    apiErrorEl.style.display = 'block';
+    return;
+  }
+
+  analyzeBtn.classList.add('analyzing');
+  analyzeBtn.querySelector('.btn-label').textContent = 'Analyzing…';
+  analyzeBtn.disabled = true;
+
+  const apiErrorEl = document.getElementById('apiError');
+  apiErrorEl.style.display = 'none';
+  document.getElementById('outputSection').style.display = 'none';
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: `Here are the meeting notes to analyze:\n\n${notes}` }]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err?.error?.message || `API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const rawText = data.content.map(b => b.type === 'text' ? b.text : '').join('').trim();
+    const cleaned = rawText.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+    parsedOutput = JSON.parse(cleaned);
+
+    activeTab = 'decisions';
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'decisions'));
+    document.getElementById('outputSection').style.display = 'block';
+    renderTab();
+
+  } catch (err) {
+    apiErrorEl.textContent = err.message || 'Something went wrong. Check your API key and try again.';
+    apiErrorEl.style.display = 'block';
+  } finally {
+    analyzeBtn.classList.remove('analyzing');
+    analyzeBtn.querySelector('.btn-label').textContent = 'Analyze Meeting';
+    analyzeBtn.disabled = !notesEl.value.trim();
+  }
+});
+
+// ── Render tabs ──
+function renderTab() {
+  const content = document.getElementById('tabContent');
+  if (!parsedOutput) return;
+
+  if (activeTab === 'decisions') {
+    const d = parsedOutput.decisions;
+    if (!d?.length) { content.innerHTML = '<p class="empty-state">No decisions were logged in this meeting.</p>'; return; }
+    content.innerHTML = `<div class="section-title">${d.length} decision${d.length !== 1 ? 's' : ''} recorded</div>` + d.map(item => `
+      <div class="card">
+        <div class="card-row"><span class="card-tag">Decision</span></div>
+        <div class="card-body">${esc(item.what)}</div>
+        <div class="card-meta"><span class="meta-item"><strong>Owner</strong> ${esc(item.who)}</span></div>
+        ${item.context ? `<div class="card-subtext">${esc(item.context)}</div>` : ''}
+      </div>`).join('');
+  }
+
+  if (activeTab === 'actions') {
+    const a = parsedOutput.actions;
+    if (!a?.length) { content.innerHTML = '<p class="empty-state">No action items were identified.</p>'; return; }
+    content.innerHTML = `<div class="section-title">${a.length} action item${a.length !== 1 ? 's' : ''}</div>` + a.map(item => `
+      <div class="card">
+        <div class="card-row">
+          <span class="card-tag">Task</span>
+          <span class="badge ${badgeClass(item.priority)}">${esc(item.priority)}</span>
+        </div>
+        <div class="card-body">${esc(item.task)}</div>
+        <div class="card-meta">
+          <span class="meta-item"><strong>Owner</strong> ${esc(item.owner)}</span>
+          <span class="meta-item"><strong>Due</strong> ${esc(item.deadline)}</span>
+        </div>
+      </div>`).join('');
+  }
+
+  if (activeTab === 'score') {
+    const s = parsedOutput.score;
+    if (!s) { content.innerHTML = '<p class="empty-state">Could not compute a score.</p>'; return; }
+    const rating = Math.min(10, Math.max(1, s.rating));
+    const pct = (rating / 10) * 100;
+    const color = rating <= 3 ? '#16a34a' : rating <= 6 ? '#d97706' : '#dc2626';
+    content.innerHTML = `
+      <div class="score-card">
+        <div class="score-hero">
+          <span class="score-num" style="color:${color}">${rating}</span>
+          <span class="score-denom">/10</span>
+        </div>
+        <div class="score-track">
+          <div class="score-fill" style="width:${pct}%;background:${color}"></div>
+        </div>
+        <div class="score-verdict">${esc(s.verdict)}</div>
+        <div class="score-reasoning">${esc(s.reasoning)}</div>
+        <div class="score-scale">
+          <span>1 — Could have been an email</span>
+          <span>10 — Meeting was essential</span>
+        </div>
+      </div>`;
+  }
+
+  if (activeTab === 'email') {
+    const email = parsedOutput.email;
+    if (!email) { content.innerHTML = '<p class="empty-state">No email draft was generated.</p>'; return; }
+    content.innerHTML = `
+      <div class="email-toolbar">
+        <div class="section-title" style="margin-bottom:0">Ready to send</div>
+        <button class="copy-btn" id="copyBtn">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <rect x="4" y="4" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.2"/>
+            <path d="M8 4V2.5A1.5 1.5 0 0 0 6.5 1h-4A1.5 1.5 0 0 0 1 2.5v4A1.5 1.5 0 0 0 2.5 8H4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          Copy
+        </button>
+      </div>
+      <div class="email-body">
+        <pre class="email-pre">${esc(email)}</pre>
+      </div>`;
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      navigator.clipboard.writeText(email).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Copied`;
+        setTimeout(() => {
+          btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="4" y="4" width="7" height="7" rx="1.2" stroke="currentColor" stroke-width="1.2"/><path d="M8 4V2.5A1.5 1.5 0 0 0 6.5 1h-4A1.5 1.5 0 0 0 1 2.5v4A1.5 1.5 0 0 0 2.5 8H4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg> Copy`;
+        }, 2000);
+      });
+    });
+  }
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function badgeClass(p) {
+  return { High: 'badge-high', Medium: 'badge-medium', Low: 'badge-low' }[p] || 'badge-low';
+}
+</script>
+
+
+</body></html>
